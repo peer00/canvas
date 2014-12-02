@@ -1,0 +1,257 @@
+<html>
+<body>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+
+  <div class="nav">
+  <header>
+    <ul>
+      <li>Home</li>
+      <li>Contact</li>
+    </ul>
+  </header>
+  </div>
+
+  <div class="content-section">
+
+    <article>
+      <p>
+        Peaches Pong!
+      </p>
+    </article>
+
+  <canvas id="the_canvas" width="500" height="500"></canvas>
+  </div>
+  <script>
+  var welcome_i = 0
+
+  var canvas = document.getElementById('the_canvas');
+  var ctx = canvas.getContext('2d');
+
+  var handleKeyDown = function(evt) {
+    if (evt.keyCode === 40) {
+      //Down arrow was pressed
+      betjeRechts.moveD();
+    }
+    else if (evt.keyCode === 38) {
+      //Up arrow was pressed
+      betjeRechts.moveU();
+    }
+    else if (evt.keyCode === 83) {
+      //Down arrow was pressed
+      betjeLinks.moveD();
+    }
+    else if (evt.keyCode === 87) {
+      //Up arrow was pressed
+      betjeLinks.moveU();
+    }
+  };
+
+  window.addEventListener('keydown',handleKeyDown,true);
+
+
+  var betje = function(x,y) {
+    var betjeGen = {
+      x: x,
+      y: y,
+      vorm: function() {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(this.x,this.y, 10, 50)
+        },
+      moveD: function() {
+          this.y = this.y + 25;
+      },
+      moveU: function() {
+          //Up arrow was pressed
+          this.y = this.y - 25;
+      },
+    }
+    return betjeGen;
+  };
+
+  var betjeLinks = betje(20,220);
+  var betjeRechts = betje(470,220);
+
+
+  var balletje = function() {
+    var balletjeGen = {
+      x: 30,
+      y: 220,
+      goLeft: false,
+      goDown: false,
+      vorm: function() {
+        ctx.fillStyle = "yellow";
+        ctx.fillRect(this.x,this.y, 10, 10)
+      },
+      moveLR: function() {
+        if (this.x > canvas.width) {
+          this.goLeft = true
+        }
+        else if (this.x < 0) {
+          this.goLeft = false
+        };
+        if (this.goLeft === true) {
+          var i = 0
+          this.x = this.x - 1
+          i++
+          if (i === canvas.width) {
+            this.goLeft = false
+          }
+        }
+        else if (this.goLeft === false) {
+          var i = 0
+          this.x = this.x + 1;
+          i++
+          if (i === canvas.width) {
+            goLeft = true
+          }
+        }
+      },
+      moveUD: function() {
+        if (this.y > canvas.height) {
+          this.goDown = false
+        }
+        else if (this.y < 0) {
+          this.goDown = true
+        };
+        if (this.goDown === true) {
+          var i = 0
+          this.y = this.y + 1
+          i++
+          if (i === canvas.height) {
+            this.goDown = false
+          }
+        }
+        else if (this.goDown === false) {
+          var i = 0
+          this.y = this.y - 1;
+          i++
+          if (i === canvas.height) {
+            goDown = true
+          }
+        };
+      },
+      }
+      return balletjeGen
+    };
+
+  var bal = balletje();
+
+
+  var player = function() {
+    var playerGen = {
+      raaktBetjeL: function() {
+        if (bal.x === betjeLinks.x + 10 && bal.y >= betjeLinks.y && bal.y <= betjeLinks.y + 50) {
+          bal.goLeft = false
+        }
+        else if (bal.x < betjeLinks.x && (bal.y > betjeLinks.y + 50 || bal.y < betjeLinks.y) ) {
+          console.log("je bent af Links!")
+          this.puntL = true
+        }
+      },
+      raaktBetjeR: function() {
+        if (bal.x === betjeRechts.x - 10 && bal.y >= betjeRechts.y && bal.y <= betjeRechts.y + 50) {
+          bal.goLeft = true
+        }
+        else if (bal.x > betjeRechts.x - 10 && (bal.y > betjeRechts.y + 50 || bal.y < betjeRechts.y) ) {
+          console.log("je bent af Rechts!")
+          this.puntL = true
+        }
+      },
+      scoreL: function() {
+        if (this.puntL === true) {
+          this.scoreL = this.scoreL + 1
+          this.puntL = false
+          console.log(this.puntL)
+        }
+      },
+      scoreR: function() {
+        if (this.puntR === true)
+        this.scoreR = this.scoreR + 1
+        this.puntR = false
+        console.log(this.puntR)
+      },
+      puntL: false,
+      puntR: false,
+    }
+    return playerGen;
+  }
+
+
+  var playerL = player();
+  var playerR = player();
+
+  var background = function() {
+    //clear background
+    ctx.fillStyle = "gray";
+    ctx.fillRect(0,0, canvas.width, canvas.height);
+  }
+
+  var draw = function() {
+
+    //betjes
+    betjeLinks.vorm();
+    betjeRechts.vorm();
+
+    //balletje
+    bal.vorm();
+    bal.moveLR();
+    bal.moveUD();
+
+  }
+
+  var rules = function() {
+    //kaatsen linker betje
+    playerL.raaktBetjeL();
+    playerR.raaktBetjeR();
+  }
+
+  var peach = function() {
+    var peachurl = "https://s3.amazonaws.com/uploads.hipchat.com/39979/1047137/rqHsCVp3fAgsTo2/peach.back.png"
+    var img = new Image();   // Create new img element
+    img.src = peachurl; // Set source path
+    ctx.drawImage(img,180,80);
+  }
+
+  var welcome = function() {
+    if (welcome_i < 15) {
+    ctx.font="30px Verdana";
+    // Create gradient
+    var gradient = ctx.createLinearGradient(0,0,canvas.width,0);
+    gradient.addColorStop("0","magenta");
+    gradient.addColorStop("0.5","blue");
+    gradient.addColorStop("1.0","red");
+    // Fill with gradient
+    ctx.fillStyle=gradient;
+    ctx.fillText("Welcome to Peaches Pong",52,257);
+    var q = function() {
+        welcome_i = welcome_i + 1
+      }
+    setTimeout(q, 5000)
+    }
+    else {
+      clearTimeout(q)
+    }
+  }
+
+
+
+  var gameFlow = function() {
+
+  setInterval(background, 3)
+  setInterval(draw, 3);
+  setInterval(rules, 3);
+  setInterval(peach, 3);
+  setInterval(welcome,3);
+
+  }
+
+gameFlow();
+
+
+
+</script>
+
+</body>
+</html>
